@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenuManagerAPI", "MenuManagerAPI\MenuManagerAPI.csproj", "{DCDCBCC1-94A4-407F-A9C5-F0384D2E3F45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MenuManagerAPI.Shared", "MenuManagerAPI.Shared\MenuManagerAPI.Shared.csproj", "{83436DCF-EBC4-4B99-BF73-4BC8DD81E20B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DCDCBCC1-94A4-407F-A9C5-F0384D2E3F45}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCDCBCC1-94A4-407F-A9C5-F0384D2E3F45}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCDCBCC1-94A4-407F-A9C5-F0384D2E3F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCDCBCC1-94A4-407F-A9C5-F0384D2E3F45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83436DCF-EBC4-4B99-BF73-4BC8DD81E20B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83436DCF-EBC4-4B99-BF73-4BC8DD81E20B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83436DCF-EBC4-4B99-BF73-4BC8DD81E20B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83436DCF-EBC4-4B99-BF73-4BC8DD81E20B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

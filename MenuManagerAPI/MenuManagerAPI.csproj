@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+      <PackageReference Include="CounterStrikeSharp.API" Version="[1.0.282, )"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\MenuManagerAPI.Shared\MenuManagerAPI.Shared.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="PlayerSettingsAPI">
+        <HintPath>\lib\PlayerSettingsAPI.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+   <Target Name="PublicBuild" AfterTargets="AfterBuild">
+    <MakeDir Directories="$(SolutionDir)bin\counterstrikesharp\plugins\MenuManagerAPI\" />
+    <MakeDir Directories="$(SolutionDir)bin\counterstrikesharp\shared\MenuManagerAPI.Shared\" />
+    <MakeDir Directories="$(SolutionDir)bin\counterstrikesharp\plugins\MenuManagerAPI\lang\" />
+    <Exec Command="xcopy /Y /R $(ProjectDir)lang\*.* $(SolutionDir)bin\counterstrikesharp\plugins\MenuManagerAPI\lang\" />
+    <Exec Command="xcopy /Y /R $(OutDir)PlayerSettingsAPI.dll $(SolutionDir)bin\counterstrikesharp\plugins\MenuManagerAPI\" />
+    <Exec Command="xcopy /Y /R $(OutDir)MenuManagerAPI.dll $(SolutionDir)bin\counterstrikesharp\plugins\MenuManagerAPI\" />
+    <Exec Command="xcopy /Y /R $(OutDir)MenuManagerAPI.pdb $(SolutionDir)bin\counterstrikesharp\plugins\MenuManagerAPI\" Condition="Exists('$(OutDir)MenuManagerAPI.pdb')" />
+    <Exec Command="xcopy /Y /R $(OutDir)MenuManagerAPI.Shared.dll $(SolutionDir)bin\counterstrikesharp\shared\MenuManagerAPI.Shared\" />
+    <Exec Command="xcopy /Y /R $(OutDir)MenuManagerAPI.Shared.pdb $(SolutionDir)bin\counterstrikesharp\shared\MenuManagerAPI.Shared\" Condition="Exists('$(OutDir)MenuManagerAPI.Shared.pdb')" />
+  </Target>
+</Project>
