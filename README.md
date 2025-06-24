@@ -127,9 +127,12 @@ public class Plugin : BasePlugin
         if (player != null)
         {            
             IMenu? menu = _api.GetMenu("Menu Title");
+            menu!.PostSelectAction = PostSelectAction.Close;
+
             for (int i = 0; i < 10; i++)
             {
                 menu.AddMenuOption($"itemline{i}", (player, option) => { player.PrintToChat($"Selected: {option.Text}"); });
+                // _api.CloseMenu(player);
             }
             menu.Open(player);
         }
