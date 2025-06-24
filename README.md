@@ -13,10 +13,10 @@ minimal changes and immediately benefit from these performance and UI improvemen
 
 This plugin has incorporated code and/or design principles from the following plugins:
 
-- [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI) by @Interesting-exe
-- [MenuManagerCS2](https://github.com/NickFox007/MenuManagerCS2) by @NickFox00
+- [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI)
+- [MenuManagerCS2](https://github.com/NickFox007/MenuManagerCS2)
 
-This plugin also utilizes [PlayerSettngsCS2](https://github.com/NickFox007/PlayerSettingsCS2) by @NickFox00 for storing menu types as player settings.
+This plugin also utilizes [PlayerSettngsCS2](https://github.com/NickFox007/PlayerSettingsCS2) for storing menu types as player settings.
 
 ## Commands
 
