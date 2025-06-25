@@ -138,7 +138,7 @@ public class Plugin : BasePlugin
                 });
             }
             menu.Open(player);
-            // _api.OpenMenu(player, menu);
+            // _api.OpenMenu(menu, player);
         }
     }
 }
