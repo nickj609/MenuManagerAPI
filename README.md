@@ -149,6 +149,10 @@ public class Plugin : BasePlugin
 - [x] Center Menu
 - [x] Console Menu
 - [x] Button Menu
+  - [x] Sound
+  - [x] Styling
+  - [x] Option Counter
+  - [x] Velocity Modifier
 - [ ] Screen Menu
 - [ ] Metamod Menu
 
