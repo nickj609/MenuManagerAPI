@@ -131,10 +131,14 @@ public class Plugin : BasePlugin
 
             for (int i = 0; i < 10; i++)
             {
-                menu.AddMenuOption($"itemline{i}", (player, option) => { player.PrintToChat($"Selected: {option.Text}"); });
-                // _api.CloseMenu(player);
+                menu.AddMenuOption($"itemline{i}", (player, option) =>
+                {
+                    player.PrintToChat($"Selected: {option.Text}");
+                    //_api.CloseMenu(player);
+                });
             }
             menu.Open(player);
+            // _api.OpenMenu(player, menu);
         }
     }
 }
