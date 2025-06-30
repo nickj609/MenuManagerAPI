@@ -18,10 +18,9 @@ public class PlayerInfo
     public int VisibleOptions = MenuExtensions.MAX_VISIBLE_OPTIONS; 
     public LinkedListNode<ButtonMenuOption>? MenuStart { get; set; }
     public LinkedListNode<ButtonMenuOption>? CurrentChoice { get; set; }
-    public ButtonMenuFontSize CurrentItemDisplayFontSize { get; private set; } = MenuExtensions.DefaultItemFontSize;
-    public ButtonMenuFontSize CurrentHeaderDisplayFontSize { get; private set; } = MenuExtensions.DefaultHeaderFontSize;
-    public ButtonMenuFontSize CurrentFooterDisplayFontSize { get; private set; } = MenuExtensions.DefaultFooterFontSize;
-
+    public FontSize CurrentItemDisplayFontSize { get; private set; } = MenuExtensions.DefaultItemFontSize;
+    public FontSize CurrentHeaderDisplayFontSize { get; private set; } = MenuExtensions.DefaultHeaderFontSize;
+    public FontSize CurrentFooterDisplayFontSize { get; private set; } = MenuExtensions.DefaultFooterFontSize;
 
     public void OpenMenu(ButtonMenu? menu)
     {
@@ -299,9 +298,9 @@ public class PlayerInfo
 
         bool hasFooterActually = !string.IsNullOrEmpty(Plugin.Instance!.Localizer["menu.bottom.text"]);
 
-        ButtonMenuFontSize actualHeaderFontSize = CurrentHeaderDisplayFontSize;
-        ButtonMenuFontSize actualFooterFontSize = CurrentFooterDisplayFontSize;
-        ButtonMenuFontSize actualOptionCountFontSize = ButtonMenuFontSize.S; 
+        FontSize actualHeaderFontSize = CurrentHeaderDisplayFontSize;
+        FontSize actualFooterFontSize = CurrentFooterDisplayFontSize;
+        FontSize actualOptionCountFontSize = FontSize.S; 
 
         // --- Header Section ---
         bool hasHeader = !string.IsNullOrEmpty(MainMenu?.Title);

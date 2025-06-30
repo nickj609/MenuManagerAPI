@@ -27,8 +27,10 @@ public class MenusCommand : IPluginDependency<Plugin, Config>
     public void OnLoad(Plugin _plugin)
     {
         plugin = _plugin;
+        // Register the command to change menu type
         plugin.AddCommand("css_changemenu", "Allows the player to change their menu type.", OnMenusCommand);
         menuAPI = new MenuAPI();
+        // Register the MenuAPI capability for other plugins to use
         Capabilities.RegisterPluginCapability(pluginCapability, () => menuAPI);
     }
 
@@ -38,14 +40,18 @@ public class MenusCommand : IPluginDependency<Plugin, Config>
     {
         if (player != null && plugin != null)
         {
+            // Get a new menu instance for selecting menu type
             var menu = menuAPI?.GetMenu(plugin.Localizer["menutype.select"]);
-            menu!.PostSelectAction = PostSelectAction.Close;
+            menu!.PostSelectAction = PostSelectAction.Close; // Close menu after selection
 
+            // Add options for each menu type
             menu.AddMenuOption(plugin.Localizer["menutype.console"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ConsoleMenu); });
             menu.AddMenuOption(plugin.Localizer["menutype.chat"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ChatMenu); });
             menu.AddMenuOption(plugin.Localizer["menutype.center"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.CenterMenu); });
             menu.AddMenuOption(plugin.Localizer["menutype.button"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ButtonMenu); });
-            menu.Open(player);
+            menu.AddMenuOption(plugin.Localizer["menutype.screen"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ScreenMenu); }); // Added Screen Menu option
+            
+            menu.Open(player); // Open the menu for the player
         }
     }
 }

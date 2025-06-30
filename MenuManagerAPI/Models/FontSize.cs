@@ -1,15 +1,12 @@
-//
+// Included libraries
 using System.ComponentModel;
 
 // Declare namespace
 namespace MenuManagerAPI.Models
 {
     // Define enum
-    public enum ButtonMenuFontSize
+    public enum FontSize
     {
-        // Name = EstimatedPixelHeight
-        // Description = CSS_Class_String
-
         [Description("fontSize-xs")]
         XS = 8,
 

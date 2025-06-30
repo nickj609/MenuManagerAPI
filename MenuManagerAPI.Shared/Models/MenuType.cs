@@ -8,6 +8,7 @@ namespace MenuManagerAPI.Shared.Models
         ConsoleMenu = 1,
         CenterMenu = 2,
         ButtonMenu = 3,
-        VoteMenu = 4
+        ScreenMenu = 4,
+        ScrollMenu = 5
     }
 }

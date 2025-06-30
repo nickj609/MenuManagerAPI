@@ -31,6 +31,7 @@ namespace MenuManagerAPI.Core
 
             // Create menus
             chatMenu = new ChatMenu(Title);
+            screenMenu = new ScreenMenu(Title);
             buttonMenu = new ButtonMenu(Title);
             buttonMenu.BackAction = _backAction;
             buttonMenu.ResetAction = _resetAction;
@@ -45,6 +46,7 @@ namespace MenuManagerAPI.Core
 
         // Define private properties
         private ChatMenu chatMenu;
+        private ScreenMenu screenMenu;
         private ButtonMenu buttonMenu;
         private ConsoleMenu consoleMenu;
         private CenterHtmlMenu? centerHtmlMenu;
@@ -56,6 +58,7 @@ namespace MenuManagerAPI.Core
             MenuOptions.Add(option);
             chatMenu?.AddMenuOption(display, onSelect, disabled);
             buttonMenu?.AddMenuOption(display, onSelect, disabled);
+            screenMenu?.AddMenuOption(display, onSelect, disabled);
             consoleMenu?.AddMenuOption(display, onSelect, disabled);
             centerHtmlMenu?.AddMenuOption(display, onSelect, disabled);
             return option;
@@ -65,7 +68,7 @@ namespace MenuManagerAPI.Core
         {
             MenuType forceType = ForceType ?? PlayerExtensions.GetMenuType(player);
             IMenu? menu;
-            
+
             switch (forceType)
             {
                 case MenuType.ChatMenu:
@@ -85,6 +88,16 @@ namespace MenuManagerAPI.Core
                     break;
                 case MenuType.ButtonMenu:
                     menu = buttonMenu;
+                    menu.PostSelectAction = PostSelectAction;
+                    menu.Open(player);
+                    break;
+                case MenuType.ScreenMenu:
+                    menu = screenMenu;
+                    menu.PostSelectAction = PostSelectAction;
+                    menu.Open(player);
+                    break;
+                case MenuType.ScrollMenu:
+                    menu = screenMenu;
                     menu.PostSelectAction = PostSelectAction;
                     menu.Open(player);
                     break;
