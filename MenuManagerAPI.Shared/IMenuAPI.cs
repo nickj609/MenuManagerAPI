@@ -17,4 +17,6 @@ public interface IMenuAPI
     public void OpenMenuToAll(IMenu menu);
     public void CloseMenu(CCSPlayerController player);
     public void CloseMenuForAll();
+    public void SetMenuType(CCSPlayerController player, MenuType menuType);
+    public void RefreshMenu(CCSPlayerController player);
 }
