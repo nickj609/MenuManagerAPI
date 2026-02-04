@@ -20,7 +20,7 @@ public class MenuAPI : IMenuAPI
     }
     public MenuType GetMenuType(CCSPlayerController player)
     {
-        return PlayerExtensions.GetMenuType(player);
+        return MenuTypeManager.GetPlayerMenuType(player);
     }
 
     public bool HasOpenedMenu(CCSPlayerController player)
@@ -60,6 +60,22 @@ public class MenuAPI : IMenuAPI
         foreach (var player in PlayerExtensions.ValidPlayers())
         {
             CloseMenu(player);
+        }
+    }
+    
+    public void SetMenuType(CCSPlayerController player, MenuType menuType)
+    {
+        MenuTypeManager.SetPlayerMenuType(player, menuType);
+    }
+
+    public void RefreshMenu(CCSPlayerController player)
+    {
+        if (Plugin.Players.TryGetValue(player.Slot, out PlayerInfo? playerInfo))
+        {
+            if (playerInfo?.MenuOpen == true)
+            {
+                playerInfo.RefreshDisplay();
+            }
         }
     }
 }

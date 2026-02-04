@@ -1,4 +1,4 @@
-﻿// Included libraries
+﻿// Included Libraries
 using PlayerSettings;
 using MenuManagerAPI.Core;
 using CounterStrikeSharp.API;
@@ -12,7 +12,7 @@ using static CounterStrikeSharp.API.Core.Listeners;
 // Declare namespace
 namespace MenuManagerAPI;
 
-// Create class to load dependencies
+// Define Denependency Injection class
 public class PluginDependencyInjection : IPluginServiceCollection<Plugin>
 {
     public void ConfigureServices(IServiceCollection serviceCollection)
@@ -23,57 +23,46 @@ public class PluginDependencyInjection : IPluginServiceCollection<Plugin>
     }
 }
 
-// Define plugin class
+// Define main plugin class
 public class Plugin : BasePlugin, IPluginConfig<Config>
 {
     // Define module properties
     public override string ModuleVersion => "1.0.1";
     public override string ModuleName => "MenuManagerAPI";
     public override string ModuleAuthor => "Striker-Nick";
-
-    // Define class dependencies
     private readonly DependencyManager<Plugin, Config> _dependencyManager;
 
-    // Define class constructor
+    // Define constructor
     public Plugin(DependencyManager<Plugin, Config> dependencyManager)
     {
         _dependencyManager = dependencyManager;
     }
 
-    // Define class properties
+    // Define class fields and properties
     public static Plugin? Instance;
     private ISettingsApi? _settingsAPI;
     public required Config Config { get; set; }
     public static Dictionary<int, PlayerInfo> Players = new();
     private readonly PluginCapability<ISettingsApi?> settingsCapability = new("settings:nfcore");
 
-    // Define on config parsed behavior
+    // Define class methods
     public void OnConfigParsed(Config _config)
     {
-        // Check config version
         if (_config.Version < 1)
-        {
-            Logger.LogWarning($"Your config file is too old, please backup and remove it.");
-        }
-        
-        // Set config
-        Config = _config;
+            Logger.LogWarning("Your config file is too old, please backup and remove it.");
 
-        // Load dependencies
+        Config = _config;
         _dependencyManager.OnConfigParsed(_config);
     }
 
-    // Define on load behavior
     public override void Load(bool hotReload)
     {
-        // Set instance
         Instance = this;
-
-        // Load dependencies
         _dependencyManager.OnPluginLoad(this);
         RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
 
-        // Register event handlers
+        MenuTypeManager.Initialize(_settingsAPI, Config.DefaultMenu, Logger);
+
         RegisterEventHandler<EventPlayerActivate>((@event, info) =>
         {
             if (@event.Userid != null)
@@ -84,13 +73,26 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
                 };
             return HookResult.Continue;
         });
+
         RegisterEventHandler<EventPlayerDisconnect>((@event, info) =>
         {
-            if (@event.Userid != null) Players.Remove(@event.Userid.Slot);
+            if (@event.Userid != null)
+            {
+                MenuTypeManager.ClearPlayerCache(@event.Userid.SteamID);
+                Players.Remove(@event.Userid.Slot);
+            }
             return HookResult.Continue;
         });
 
-        // Define hot reload behavior
+        RegisterEventHandler<EventRoundEnd>((@event, info) =>
+        {
+            if (Config.ButtonMenu.ClearStateOnRoundEnd)
+            {
+                MenuTypeManager.ClearAllCache();
+            }
+            return HookResult.Continue;
+        });
+
         if (hotReload)
         {
             foreach (var pl in Utilities.GetPlayers())
@@ -104,17 +106,18 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
         }
     }
 
-    // Define on all plugins loaded behavior
     public override void OnAllPluginsLoaded(bool hotReload)
     {
         _settingsAPI = settingsCapability.Get();
         if (_settingsAPI != null)
         {
             PlayerExtensions.LoadSettings(_settingsAPI);
+            MenuTypeManager.Initialize(_settingsAPI, Config.DefaultMenu);
         }
         else
         {
-            Console.WriteLine("PlayerSettings core not found...");
+            Console.WriteLine("PlayerSettings core not found - menu preferences will not be persisted.");
+            MenuTypeManager.Initialize(null, Config.DefaultMenu);
         }
     }
 }

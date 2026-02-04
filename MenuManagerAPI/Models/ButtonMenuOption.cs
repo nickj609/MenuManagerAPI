@@ -1,4 +1,5 @@
 ﻿// Included libraries
+using MenuManagerAPI.Menus;
 using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 

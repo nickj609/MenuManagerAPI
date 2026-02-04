@@ -1,12 +1,13 @@
 ﻿// Included libraries
 using MenuManagerAPI.Core;
+using MenuManagerAPI.Models;
 using MenuManagerAPI.CrossCutting;
 using CounterStrikeSharp.API.Core;
 using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
-namespace MenuManagerAPI.Models;
+namespace MenuManagerAPI.Menus;
 
 // Define class
 public class ButtonMenu : IMenu
@@ -67,7 +68,7 @@ public class ButtonMenu : IMenu
     {
         if (BackAction != null)
         {
-            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.SoundBack);
+            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Back);
             BackAction(player);
         }
     }

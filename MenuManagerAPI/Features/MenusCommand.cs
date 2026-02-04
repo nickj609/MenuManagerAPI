@@ -1,7 +1,7 @@
 // Included libraries
 using MenuManagerAPI.Shared;
-using MenuManagerAPI.Contracts;
 using MenuManagerAPI.Services;
+using MenuManagerAPI.Contracts;
 using MenuManagerAPI.CrossCutting;
 using CounterStrikeSharp.API.Core;
 using MenuManagerAPI.Shared.Models;
@@ -49,7 +49,6 @@ public class MenusCommand : IPluginDependency<Plugin, Config>
             menu.AddMenuOption(plugin.Localizer["menutype.chat"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ChatMenu); });
             menu.AddMenuOption(plugin.Localizer["menutype.center"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.CenterMenu); });
             menu.AddMenuOption(plugin.Localizer["menutype.button"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ButtonMenu); });
-            menu.AddMenuOption(plugin.Localizer["menutype.screen"], (player, option) => { PlayerExtensions.SetMenuType(player, MenuType.ScreenMenu); }); // Added Screen Menu option
             
             menu.Open(player); // Open the menu for the player
         }
