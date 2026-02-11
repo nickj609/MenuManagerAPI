@@ -109,7 +109,7 @@ Below is an example of the actual `en.json` lang file. You can add or override k
 }
 ```
 
-## Color Stripping and Normalization (For Developers)
+## Color Normalization (For Developers)
 
 MenuManagerAPI provides robust color handling for menu text, giving developers fine control over how colors are rendered in Button Menus:
 
@@ -118,17 +118,12 @@ MenuManagerAPI provides robust color handling for menu text, giving developers f
   - The normalized output will be wrapped in an additional `<font>` tag for font styling (size, bold, italic), so you may see two nested `<font>` tags when using color tokens. This is intentional and ensures both color and style are applied.
   - If no color token is present, the configured color from your menu style (e.g., `EnabledOptionColor`, `Title.Color`) is used as a fallback.
 
-- **Stripping Color Tokens:**
-  - By default, Button Menus strip `{color}` tokens from text (`StripChatColors: true` in config). This ensures a clean, uniform look for most servers.
-  - If you want to allow color tokens in your menu text, set `StripChatColors: false` in your config. This will enable token normalization as described above.
-
 - **HTML Support:**
   - You can use raw HTML `<font color='...'>` tags in your menu text for advanced customization. These will be preserved and rendered as-is.
 
 **Summary:**
   - Use `{color}` tokens for simple, portable colorization.
   - Use raw HTML for advanced needs.
-  - Control stripping/normalization with the `StripChatColors` config option.
 
 ## Why MenuManagerAPI is Better (For Developers & Servers)
 
