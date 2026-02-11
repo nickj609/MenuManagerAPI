@@ -34,17 +34,36 @@ public class MenuInstance : IMenu
         ResetAction = _resetAction;
         MenuOptions = new List<ChatMenuOption>();
 
-        chatMenu = new ChatMenu(Title);
-        buttonMenu = new ButtonMenu(Title);
-        buttonMenu.BackAction = _backAction;
-        buttonMenu.ResetAction = _resetAction;
+        chatMenu = new ChatMenu(Title)
+        {
+            ExitButton = ExitButton,
+            PostSelectAction = PostSelectAction
+        };
+
+        buttonMenu = new ButtonMenu(Title)
+        {
+            ExitButton = ExitButton,
+            BackAction = _backAction,
+            ResetAction = _resetAction,
+            PostSelectAction = PostSelectAction
+        };
+        
         consoleMenu = new ConsoleMenu(Title);
+        if (Plugin.Instance != null)
+        {
+            centerMenu = new CenterHtmlMenu(Title, Plugin.Instance)
+            {
+                ExitButton = ExitButton,
+                PostSelectAction = PostSelectAction
+            };
+        }
     }
 
     // Define class fields
     private ChatMenu chatMenu;
     private ButtonMenu buttonMenu;
     private ConsoleMenu consoleMenu;
+    private CenterHtmlMenu? centerMenu;
 
     public int TotalPages => (int)Math.Ceiling((double)MenuOptions.Count / ItemsPerPage);
 
@@ -82,6 +101,7 @@ public class MenuInstance : IMenu
         var option = new ChatMenuOption(display, disabled, (p, opt) => onSelect(p, opt));
         MenuOptions.Add(option);
         chatMenu?.AddMenuOption(display, onSelect, disabled);
+        centerMenu?.AddMenuOption(display, onSelect, disabled);
         buttonMenu?.AddMenuOption(display, onSelect, disabled);
         consoleMenu?.AddMenuOption(display, onSelect, disabled);
         return option;
@@ -96,9 +116,14 @@ public class MenuInstance : IMenu
         {
             case MenuType.ChatMenu:
                 menu = chatMenu;
-                menu.PostSelectAction = PostSelectAction;
+                menu!.PostSelectAction = PostSelectAction;
                 menu.Open(player);
                 break;
+            case MenuType.CenterMenu:
+                menu = centerMenu;
+                menu!.PostSelectAction = PostSelectAction;
+                menu.Open(player);
+            break;
             case MenuType.ConsoleMenu:
                 menu = consoleMenu;
                 menu.PostSelectAction = PostSelectAction;
@@ -110,7 +135,7 @@ public class MenuInstance : IMenu
                 menu.Open(player);
                 break;
         }
-
+        
         Plugin.Players[player.Slot].MenuOpen = true;
     }
 

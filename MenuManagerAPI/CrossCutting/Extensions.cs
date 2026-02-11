@@ -14,6 +14,72 @@ namespace MenuManagerAPI.CrossCutting
     // Define class
     public static class MenuExtensions
     {
+        // Define class methods
+        public static string NormalizeMenuText(this string input, string fontClass, string styleClasses, string defaultColor)
+        {
+            if (string.IsNullOrEmpty(input))
+                return $"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'></font>";
+
+            // Map tokens to colors (can be extended)
+            var colorMap = new Dictionary<string, string>
+            {
+                { "{green}", "lime" },
+                { "{red}", "red" },
+                { "{yellow}", "yellow" },
+                { "{blue}", "blue" },
+                // Add more as needed
+            };
+
+            // Regex to match color tokens
+            var tokenRegex = new System.Text.RegularExpressions.Regex(@"\{(green|red|yellow|blue)\}", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var closeTagRegex = new System.Text.RegularExpressions.Regex(@"\{\/\}");
+
+            // Build output
+            var output = new System.Text.StringBuilder();
+            int lastIndex = 0;
+            var matches = tokenRegex.Matches(input);
+            if (matches.Count == 0)
+            {
+                // No tokens, wrap whole string in config font class, style, and color
+                output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'>");
+                output.Append(input);
+                output.Append("</font>");
+                return output.ToString();
+            }
+
+            // There are tokens, process segments
+            foreach (System.Text.RegularExpressions.Match match in matches)
+            {
+                // Append text before token, wrapped in config font class, style, and color if not empty
+                if (match.Index > lastIndex)
+                {
+                    string segment = input.Substring(lastIndex, match.Index - lastIndex);
+                    if (!string.IsNullOrEmpty(segment))
+                    {
+                        output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'>");
+                        output.Append(segment);
+                        output.Append("</font>");
+                    }
+                }
+                // Append token as font tag, using config font class and style, but token color
+                string token = match.Value.ToLower();
+                string color = colorMap.ContainsKey(token) ? colorMap[token] : defaultColor;
+                output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{color}'>");
+                lastIndex = match.Index + match.Length;
+            }
+            // Append remainder after last token
+            if (lastIndex < input.Length)
+            {
+                string segment = input.Substring(lastIndex);
+                // Handle close tag tokens
+                segment = closeTagRegex.Replace(segment, "</font>");
+                // Remove unknown tokens
+                segment = System.Text.RegularExpressions.Regex.Replace(segment, "\\{[a-zA-Z]+\\}", "");
+                output.Append(segment);
+                output.Append("</font>");
+            }
+            return output.ToString();
+        }
         // Define class constants and properties
         public const int MAX_VISIBLE_OPTIONS = 5;
         public const FontSize DefaultHeaderFontSize = FontSize.M;

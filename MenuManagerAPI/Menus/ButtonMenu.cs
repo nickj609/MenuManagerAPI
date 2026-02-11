@@ -3,7 +3,6 @@ using MenuManagerAPI.Core;
 using MenuManagerAPI.Models;
 using MenuManagerAPI.CrossCutting;
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Modules.Menu;
 
 // Declare namespace
@@ -50,10 +49,6 @@ public class ButtonMenu : IMenu
                 playerInfo.OpenMenu(this);
             }
         }
-        else
-        {
-            Plugin.Instance?.Logger.LogError("Player not found in player list.");
-        }
     }
 
     public void OpenToAll()
@@ -77,7 +72,5 @@ public class ButtonMenu : IMenu
     {
         if (ResetAction != null)
             ResetAction(player);
-        else
-            Plugin.Instance!.Logger.LogWarning($"Reset action is not passed to func! TITLE: {Title}");
     }
 }

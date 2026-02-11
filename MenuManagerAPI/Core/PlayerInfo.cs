@@ -19,6 +19,7 @@ public class PlayerInfo
     private bool SelectionProcessing = false;
     public PlayerButtons Buttons { get; set; }
     public bool MenuOpen { get; set; } = false;
+    public bool ButtonMenuOpen => MainMenu != null;
     public float VelocityModifier { get; set; } = 0.0f;
     public required CCSPlayerController player { get; set; }
     public int VisibleOptions = MenuExtensions.MAX_VISIBLE_OPTIONS; 
@@ -48,10 +49,8 @@ public class PlayerInfo
                 }
             }
 
-            if (Plugin.Instance != null)
-            {
-                Plugin.Instance.RegisterListener<Listeners.OnTick>(OnTick);
-            }
+
+            ButtonMenuManager.OpenMenu(this);
 
             // Font sizes are now fixed
             CurrentItemDisplayFontSize = MenuExtensions.DefaultItemFontSize;
@@ -83,13 +82,9 @@ public class PlayerInfo
 
     public void CloseMenu()
     {
-        MainMenu = null;
-        CurrentChoice = null;
-        CenterHtml = "";
-        
         if (Plugin.Instance != null)
         {
-            Plugin.Instance.RemoveListener<Listeners.OnTick>(OnTick);
+            ButtonMenuManager.CloseMenu(this);
 
             if (!Plugin.Instance.Config.ButtonMenu.MoveWithOpenMenu)
             {
@@ -106,6 +101,11 @@ public class PlayerInfo
                 }
             }
         }
+
+        MenuOpen = false;
+        MainMenu = null;
+        CurrentChoice = null;
+        CenterHtml = "";
     }
 
     public void OnTick()
@@ -146,7 +146,9 @@ public class PlayerInfo
                     GoBackToPrev(CurrentChoice?.Value.Parent.Prev);
                 }
             }
-            else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) != 0)
+            else if (MainMenu != null && MainMenu.ExitButton &&
+                (Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) == 0 &&
+                (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) != 0)
             {
                 PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Exit);
                 CloseMenu();
@@ -319,19 +321,14 @@ public class PlayerInfo
                 if (titleStyle.Italic)
                     headerStyleClasses += titleStyle.Bold ? " stratum-bold-italic" : "stratum-italic";
 
+                string normalizedHeader = MainMenu?.Title.NormalizeMenuText(headerFontClass, headerStyleClasses, headerColor) ?? "";
                 if (Plugin.Instance!.Config.ButtonMenu.OptionCount)
                 {
-                    string headerClass = string.IsNullOrEmpty(headerStyleClasses)
-                        ? headerFontClass
-                        : $"{headerFontClass} {headerStyleClasses}";
-                    builder.AppendLine($"<font class='{headerClass}' color='{headerColor}'>{MainMenu?.Title}</font></u><font class='{MenuExtensions.GetCssClassForFontSize(actualOptionCountFontSize)} stratum-bold-italic'>{CurrentChoice?.Value?.Index + 1}/{CurrentChoice?.List?.Count}</font></font><br>");
+                    builder.AppendLine($"{normalizedHeader}</u><font class='{MenuExtensions.GetCssClassForFontSize(actualOptionCountFontSize)} stratum-bold-italic'>{CurrentChoice?.Value?.Index + 1}/{CurrentChoice?.List?.Count}</font></font><br>");
                 }
                 else
                 {
-                    string headerClass = string.IsNullOrEmpty(headerStyleClasses)
-                        ? headerFontClass
-                        : $"{headerFontClass} {headerStyleClasses}";
-                    builder.AppendLine($"<font class='{headerClass}' color='{headerColor}'>{MainMenu?.Title}</font><br>");
+                    builder.AppendLine($"{normalizedHeader}<br>");
                 }
                 linesRenderedContent++;
             }
@@ -347,9 +344,7 @@ public class PlayerInfo
                 string fontColor = option?.Value.Disabled == true
                     ? Plugin.Instance!.Config.ButtonMenu.DisabledOptionColor
                     : Plugin.Instance!.Config.ButtonMenu.EnabledOptionColor;
-
-                string fontTagStart = $"<font class='{itemFontClass}' color='{fontColor}'>";
-                string fontTagEnd = "</font>";
+                string styleClasses = string.Empty; // Add logic for bold/italic if needed
 
                 if (option == CurrentChoice && Plugin.Instance != null)
                 {
@@ -357,12 +352,12 @@ public class PlayerInfo
                     string rightSelection = Plugin.Instance.Localizer["menu.selection.right"] ?? string.Empty;
                     var arrowStyle = Plugin.Instance.Config.ButtonMenu.Selection;
                     string arrowFontClass = MenuExtensions.GetCssClassForFontSize(arrowStyle.FontSize);
-                    string styleClasses = arrowStyle.Bold ? "stratum-bold" : string.Empty;
-                    if (arrowStyle.Italic) styleClasses += arrowStyle.Bold ? " stratum-bold-italic" : "stratum-italic";
+                    string arrowStyleClasses = arrowStyle.Bold ? "stratum-bold" : string.Empty;
+                    if (arrowStyle.Italic) arrowStyleClasses += arrowStyle.Bold ? " stratum-bold-italic" : "stratum-italic";
 
-                    string arrowTag = string.IsNullOrEmpty(styleClasses)
+                    string arrowTag = string.IsNullOrEmpty(arrowStyleClasses)
                         ? $"<font class='{arrowFontClass}' color='{arrowStyle.Color}'>"
-                        : $"<font class='{arrowFontClass} {styleClasses}' color='{arrowStyle.Color}'>";
+                        : $"<font class='{arrowFontClass} {arrowStyleClasses}' color='{arrowStyle.Color}'>";
 
                     // Parse selection parts: leftSelection = "&#9654; [ " -> arrow + bracket
                     // rightSelection = "] &#9664;" -> bracket + arrow
@@ -370,15 +365,17 @@ public class PlayerInfo
                     string[] rightParts = rightSelection.Split(new[] { " " }, System.StringSplitOptions.RemoveEmptyEntries);
                     
                     // Build: arrow | bracket | content | bracket | arrow
-                    builder.Append($"{arrowTag}" + (leftParts.Length > 0 ? leftParts[0] : "") + $"</font>");
-                    builder.Append($"{arrowTag}" + (leftParts.Length > 1 ? string.Join(" ", leftParts.Skip(1)) : "[") + $"</font>");
-                    builder.Append($"{fontTagStart}{option?.Value?.OptionDisplay}{fontTagEnd}");
-                    builder.Append($"{arrowTag}" + (rightParts.Length > 0 ? rightParts[0] : "]") + $"</font>");
-                    builder.Append($"{arrowTag}" + (rightParts.Length > 1 ? rightParts[rightParts.Length - 1] : "") + $"</font>");
+                    builder.Append($"{arrowTag}" + (leftParts.Length > 0 ? leftParts[0] : "") + "</font> ");
+                    builder.Append($"{arrowTag}" + (leftParts.Length > 1 ? string.Join(" ", leftParts.Skip(1)) : "[") + "</font> ");
+                    string normalizedOptionDisplay = option?.Value?.OptionDisplay.NormalizeMenuText(itemFontClass, styleClasses, fontColor) ?? "";
+                    builder.Append($"{normalizedOptionDisplay} ");
+                    builder.Append($"{arrowTag}" + (rightParts.Length > 0 ? rightParts[0] : "]") + "</font> ");
+                    builder.Append($"{arrowTag}" + (rightParts.Length > 1 ? rightParts[rightParts.Length - 1] : "") + "</font>");
                 }
                 else
                 {
-                    builder.Append($"{fontTagStart}{option?.Value.OptionDisplay}{fontTagEnd}");
+                    string normalizedOptionDisplay = option?.Value.OptionDisplay.NormalizeMenuText(itemFontClass, styleClasses, fontColor) ?? "";
+                    builder.Append(normalizedOptionDisplay);
                 }
 
                 builder.Append("<br>");
@@ -407,14 +404,23 @@ public class PlayerInfo
             
             builder.Append("<font class='fontSize-xs'>&nbsp;</font><br>");
             builder.Append($"<font class='{footerFontClass}'>");
-            builder.Append($"<font color='{separatorColor}'{separatorBoldClass}>{scroll} </font>");
-            builder.Append($"<font color='{buttonColor}'{buttonBoldClass}>{scrollButton}</font>");
-            builder.Append($"<font color='{separatorColor}'{separatorBoldClass}> | {select} </font>");
-            builder.Append($"<font color='{buttonColor}'{buttonBoldClass}>{selectButton}</font>");
-            builder.Append($"<font color='{separatorColor}'{separatorBoldClass}> | {previous} </font>");
-            builder.Append($"<font color='{buttonColor}'{buttonBoldClass}>{previousButton}</font>");
-            builder.Append($"<font color='{separatorColor}'{separatorBoldClass}> | {exit} </font>");
-            builder.Append($"<font color='{buttonColor}'{buttonBoldClass}>{exitButton}</font>");
+            string normalizedScroll = scroll.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
+            string normalizedScrollButton = scrollButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
+            string normalizedSelect = select.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
+            string normalizedSelectButton = selectButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
+            string normalizedPrevious = previous.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
+            string normalizedPreviousButton = previousButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
+            string normalizedExit = exit.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
+            string normalizedExitButton = exitButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
+            string normalizedSeparator = "|".NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
+            if (MainMenu != null && MainMenu.ExitButton)
+            {
+                builder.Append($"{normalizedScroll} {normalizedScrollButton} {normalizedSeparator} {normalizedSelect} {normalizedSelectButton} {normalizedSeparator} {normalizedPrevious} {normalizedPreviousButton} {normalizedSeparator} {normalizedExit} {normalizedExitButton}");
+            }
+            else
+            {
+                builder.Append($"{normalizedScroll} {normalizedScrollButton} {normalizedSeparator} {normalizedSelect} {normalizedSelectButton} {normalizedSeparator} {normalizedPrevious} {normalizedPreviousButton}");
+            }
             builder.Append("</font>");
             linesRenderedContent += 2;
 

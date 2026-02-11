@@ -42,16 +42,16 @@ public class MenuAPI : IMenuAPI
     {
         if (Plugin.Players.TryGetValue(player.Slot, out PlayerInfo? playerInfo))
         {
-            if (PlayerExtensions.GetMenuType(player) is MenuType.ButtonMenu)
+            if (playerInfo.ButtonMenuOpen)
             {
                 playerInfo.CloseMenu();
+                playerInfo.MenuOpen = false;
             }
             else
             {
                 MenuManager.CloseActiveMenu(player);
+                playerInfo.MenuOpen = false;
             }
-
-            Plugin.Players[player.Slot].MenuOpen = false;
         }
     }
 
@@ -72,7 +72,7 @@ public class MenuAPI : IMenuAPI
     {
         if (Plugin.Players.TryGetValue(player.Slot, out PlayerInfo? playerInfo))
         {
-            if (playerInfo?.MenuOpen == true)
+            if (playerInfo.ButtonMenuOpen)
             {
                 playerInfo.RefreshDisplay();
             }

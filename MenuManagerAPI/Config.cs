@@ -70,7 +70,6 @@ namespace MenuManagerAPI
         public bool OptionCount { get; set; } = true;
         public bool MoveWithOpenMenu { get; set; } = false;
         public bool UseVelocityModifier { get; set; } = false;
-        public bool ClearStateOnRoundEnd { get; set; } = true;
         public string EnabledOptionColor { get; set; } = "white";
         public string DisabledOptionColor { get; set; } = "#aaaaaa";
         public ButtonsConfig ButtonsConfig { get; set; } = new();
@@ -84,7 +83,7 @@ namespace MenuManagerAPI
     public class Config : IBasePluginConfig
     {
         // Global Plugin Settings
-        public int Version { get; set; } = 1;
+        public int Version { get; set; } = 2;
         public MenuType DefaultMenu { get; set; } = MenuType.ButtonMenu;
         
         // Button Menu Settings

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using CounterStrikeSharp.API.Core.Capabilities;
 using Microsoft.Extensions.DependencyInjection;
 using static CounterStrikeSharp.API.Core.Listeners;
+using System.Security.Cryptography.X509Certificates;
 
 // Declare namespace
 namespace MenuManagerAPI;
@@ -27,7 +28,7 @@ public class PluginDependencyInjection : IPluginServiceCollection<Plugin>
 public class Plugin : BasePlugin, IPluginConfig<Config>
 {
     // Define module properties
-    public override string ModuleVersion => "1.0.1";
+    public override string ModuleVersion => "1.0.2";
     public override string ModuleName => "MenuManagerAPI";
     public override string ModuleAuthor => "Striker-Nick";
     private readonly DependencyManager<Plugin, Config> _dependencyManager;
@@ -59,7 +60,17 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
     {
         Instance = this;
         _dependencyManager.OnPluginLoad(this);
-        RegisterListener<OnMapStart>(_dependencyManager.OnMapStart);
+        RegisterListener<OnMapStart>((@event) =>
+        {
+            // Close only open button menus on round end
+            var openMenus = new List<PlayerInfo>(MenuManagerAPI.Core.ButtonMenuManager.GetOpenMenus());
+            foreach (var playerInfo in openMenus)
+            {
+                ButtonMenuManager.CloseMenu(playerInfo);
+            }
+            
+            _dependencyManager.OnMapStart(@event);
+        });
 
         MenuTypeManager.Initialize(_settingsAPI, Config.DefaultMenu, Logger);
 
@@ -86,15 +97,24 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
 
         RegisterEventHandler<EventRoundEnd>((@event, info) =>
         {
-            if (Config.ButtonMenu.ClearStateOnRoundEnd)
+            // Close only open button menus on round end
+            var openMenus = new List<PlayerInfo>(MenuManagerAPI.Core.ButtonMenuManager.GetOpenMenus());
+            foreach (var playerInfo in openMenus)
             {
-                MenuTypeManager.ClearAllCache();
+                ButtonMenuManager.CloseMenu(playerInfo);
             }
             return HookResult.Continue;
         });
 
         if (hotReload)
         {
+            // On hot reload, close all open menus and reset state
+            var openMenus = new List<PlayerInfo>(ButtonMenuManager.GetOpenMenus());
+            foreach (var infoObj in openMenus)
+            {
+                ButtonMenuManager.CloseMenu(infoObj);
+            }
+            Players.Clear();
             foreach (var pl in Utilities.GetPlayers())
             {
                 Players[pl.Slot] = new PlayerInfo
