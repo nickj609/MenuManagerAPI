@@ -1,3 +1,5 @@
+![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/MenuManagerAPI) ![Issues](https://img.shields.io/github/issues/nickj609/MenuManagerAPI) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/MenuManagerAPI/total) ![NuGet Version](https://img.shields.io/nuget/v/MenuManagerAPI.Shared)
+
 # MenuManagerAPI
 
 MenuManagerAPI takes the powerful groundwork established by [MenuManagerCS2](https://github.com/NickFox007/MenuManagerCS2) and elevates it. We've refined the core concepts to offer a smarter, faster, and more versatile experience, focusing on:
@@ -158,45 +160,12 @@ Below is an example of the actual `en.json` lang file. You can add or override k
 }
 ```
 
-## Color Normalization (For Developers)
+# API
+Add a reference to `MenuManagerAPI.Shared` to your project in one of the following ways:
 
-MenuManagerAPI provides robust color handling for menu text, giving developers fine control over how colors are rendered in Button Menus:
-
-- **Color Token Normalization:**
-  - If your menu header or option contains a `{color}` token, MenuManagerAPI will convert this to an HTML `<font color='color'>...</font>` tag for display. 
-  - If no color token is present, the configured color from your menu style (e.g., `EnabledOptionColor`, `Title.Color`) is used as a fallback.
-<<<<<<< Updated upstream
-
-- **HTML Support:**
-=======
->>>>>>> Stashed changes
-  - You can use raw HTML `<font color='...'>` tags in your menu text for advanced customization. These will be preserved and rendered as-is.
-  - Color tokens will override all colors in the configuration file
-
-**Summary:**
-  - Use `{color}` tokens for simple, portable colorization. This can be from a config file or directly hard-coded. 
-  - Use raw HTML for advanced needs.
-
-## Why MenuManagerAPI is Better (For Developers & Servers)
-
-MenuManagerAPI is designed from the ground up for both developer productivity and server performance:
-
-### For Developers
-- **Consistent, Predictable API:** The API is stable and mirrors CounterStrikeSharp and MenuManagerCS2, making migration and integration easy.
-- **Automatic Color Handling:** No need to manually parse or wrap color tokens—MenuManagerAPI does it for you, with clear config options.
-- **Multiple Menu Types:** Easily switch between Button, Chat, Center, and Console menus. Player preferences are respected automatically.
-- **Extensible & Modular:** Built with dependency injection and clean separation of concerns, so you can add features or swap out components with minimal friction.
-- **Strong Typing & Null Safety:** All config and API surfaces are strongly typed, reducing runtime errors and making code easier to reason about.
-
-### For Servers
-- **Performance Optimized:** Uses pooled StringBuilders and efficient rendering logic to minimize allocations and maximize responsiveness, even with large menus.
- - **Global OnTick Listener:** Like CounterStrikeSharp's built-in ChatMenu and CenterHtmlMenu, MenuManagerAPI uses a global OnTick listener to track and update all open menus. This ensures centralized state management and a consistent, robust user experience—no stale menus, no memory leaks, and smooth updates for all players.
-- **Event-Driven Cleanup:** Menu state is always cleaned up on round end, disconnect, or map change—no memory leaks or stale menus.
-- **Graceful Degradation:** If a menu type or dependency is missing, the system falls back to chat commands or other available types, ensuring menus always work.
-- **Player Preference Persistence:** Menu type and settings are stored per-player, so users always get their preferred experience.
-- **Battle-Tested:** Built on lessons learned from MenuManagerCS2 and WASDMenuAPI, with a focus on reliability and real-world usability.
-
-**Bottom Line:** MenuManagerAPI is the most robust, developer-friendly, and performant menu system for CounterStrikeSharp servers. It saves you time, reduces bugs, and gives your players a better experience.
+1. Download the source code and build it yourself.
+2. Download the latest release from the [releases](https://github.com/nickj609/MenuManagerAPI/releases) page.
+3. Install the package using the .NET CLI, run: `dotnet add package MenuManagerAPI.Shared`.
 
 ## Interface
 
@@ -268,18 +237,20 @@ public class Plugin : BasePlugin
     }
 }
 ```
+## Color Normalization
 
-## TODO
-- [x] Chat Menu
-- [x] Center Menu
-- [x] Console Menu
-- [x] Button Menu
-  - [x] Sound
-  - [x] Styling
-  - [x] Option Counter
-  - [x] Velocity Modifier
-  - [x] Global OnTick function
+MenuManagerAPI provides robust color handling for menu text, giving developers fine control over how colors are rendered in Button Menus:
 
-## Need Help?
+- **Color Token Normalization:**
+  - If your menu header or option contains a `{color}` token, MenuManagerAPI will convert this to an HTML `<font color='color'>...</font>` tag for display. 
+  - If no color token is present, the configured color from your menu style (e.g., `EnabledOptionColor`, `Title.Color`) is used as a fallback.
+  - You can use raw HTML `<font color='...'>` tags in your menu text for advanced customization. These will be preserved and rendered as-is.
+  - Color tokens will override all colors in the configuration file
+
+**Summary:**
+  - Use `{color}` tokens for simple, portable colorization. This can be from a config file or directly hard-coded. 
+  - Use raw HTML for advanced needs.
+
+# Need Help?
 
 Still need help? [create a new issue](https://github.com/nickj609/MenuManagerAPI/issues/new/choose).
