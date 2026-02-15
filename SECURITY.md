@@ -6,11 +6,11 @@ MenuManagerAPI security policy guidelines.
 
 We take the security of our users very seriously. Security updates will only be provided for the following versions of the GameModeManager plugin:
 
-- v1.0.1 **(Current Version)**
-- v1.0.1 **(Previous Major Version)**
+- v1.0.3 **(Current Version)**
+- v1.0.2 **(Previous Major Version)**
 
 > [!IMPORTANT]
-> Versions before **v1.0.1** are no longer supported and may contain unaddressed vulnerabilities. We strongly recommend upgrading to a supported version to ensure continued security.
+> Versions before **v1.0.2** are no longer supported and may contain unaddressed vulnerabilities. We strongly recommend upgrading to a supported version to ensure continued security.
 
 ## Reporting a Vulnerability
 

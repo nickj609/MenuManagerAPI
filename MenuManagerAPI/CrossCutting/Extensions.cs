@@ -6,7 +6,9 @@ using System.ComponentModel;
 using CounterStrikeSharp.API;
 using CounterStrikeSharp.API.Core;
 using MenuManagerAPI.Shared.Models;
+using CounterStrikeSharp.API.Modules.Utils;
 using CounterStrikeSharp.API.Modules.Memory;
+using CounterStrikeSharp.API.Modules.Commands;
 
 // Declare namespace
 namespace MenuManagerAPI.CrossCutting
@@ -14,35 +16,71 @@ namespace MenuManagerAPI.CrossCutting
     // Define class
     public static class MenuExtensions
     {
+        // Define class properties
+        private static readonly Dictionary<string, char> PredefinedColors = typeof(ChatColors)
+        .GetFields(BindingFlags.Public | BindingFlags.Static)
+        .ToDictionary(field => $"{{{field.Name}}}", field => (char)(field.GetValue(null) ?? '\x01'));
+
         // Define class methods
-        public static string NormalizeMenuText(this string input, string fontClass, string styleClasses, string defaultColor)
+        public static string FormatChatMessage(string message)
         {
-            if (string.IsNullOrEmpty(input))
-                return $"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'></font>";
-
-            // Map tokens to colors (can be extended)
-            var colorMap = new Dictionary<string, string>
+            string result = message;
+            foreach (var color in PredefinedColors)
             {
-                { "{green}", "lime" },
-                { "{red}", "red" },
-                { "{yellow}", "yellow" },
-                { "{blue}", "blue" },
-                // Add more as needed
-            };
+                result = ReplaceIgnoreCase(result, color.Key, color.Value.ToString());
+            }
+            return result;
+        }
 
-            // Regex to match color tokens
-            var tokenRegex = new System.Text.RegularExpressions.Regex(@"\{(green|red|yellow|blue)\}", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        public static string CleanMessage(string message)
+        {
+            string result = message;
+            foreach (var color in PredefinedColors)
+            {
+                result = ReplaceIgnoreCase(result, color.Key, "");
+                result = result.Replace(color.Value.ToString(), "");
+            }
+            return result;
+        }
+
+        private static string ReplaceIgnoreCase(string input, string search, string replacement)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(
+                input,
+                System.Text.RegularExpressions.Regex.Escape(search),
+                replacement,
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+        }
+        
+        public static string FormatHtmlMessage(this string message, bool isButtonMenu = false, string defaultColor = "white", string fontClass = "", string styleClasses = "")
+        {
+            // Return empty font tag if message is null or empty to ensure consistent formatting
+            if (string.IsNullOrEmpty(message))
+            {
+                if (isButtonMenu)
+                    return $"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'></font>";
+                else
+                    return $"<font color='{defaultColor}'></font>";   
+            }
+            
+            // Regex to match any color token: {color} or {#hex}
+            var tokenRegex = new System.Text.RegularExpressions.Regex(@"\{([^}]+)\}", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             var closeTagRegex = new System.Text.RegularExpressions.Regex(@"\{\/\}");
 
             // Build output
             var output = new System.Text.StringBuilder();
             int lastIndex = 0;
-            var matches = tokenRegex.Matches(input);
+            var matches = tokenRegex.Matches(message);
             if (matches.Count == 0)
             {
                 // No tokens, wrap whole string in config font class, style, and color
-                output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'>");
-                output.Append(input);
+                if (isButtonMenu)
+                    output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'>");
+                else
+                    output.Append($"<font color='{defaultColor}'>");
+                    
+                output.Append(message);
                 output.Append("</font>");
                 return output.ToString();
             }
@@ -53,26 +91,36 @@ namespace MenuManagerAPI.CrossCutting
                 // Append text before token, wrapped in config font class, style, and color if not empty
                 if (match.Index > lastIndex)
                 {
-                    string segment = input.Substring(lastIndex, match.Index - lastIndex);
+                    string segment = message.Substring(lastIndex, match.Index - lastIndex);
                     if (!string.IsNullOrEmpty(segment))
                     {
-                        output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'>");
+                        if (isButtonMenu)
+                            output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{defaultColor}'>");
+                        else
+                            output.Append($"<font color='{defaultColor}'>");
+                            
                         output.Append(segment);
                         output.Append("</font>");
                     }
                 }
-                // Append token as font tag, using config font class and style, but token color
-                string token = match.Value.ToLower();
-                string color = colorMap.ContainsKey(token) ? colorMap[token] : defaultColor;
-                output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{color}'>");
+                // Use token value directly as color
+                string color = match.Groups[1].Value;
+
+                if (isButtonMenu)
+                    output.Append($"<font class='{fontClass}{(string.IsNullOrEmpty(styleClasses) ? "" : " " + styleClasses)}' color='{color}'>");
+                else
+                    output.Append($"<font color='{color}'>");
+
                 lastIndex = match.Index + match.Length;
             }
             // Append remainder after last token
-            if (lastIndex < input.Length)
+            if (lastIndex < message.Length)
             {
-                string segment = input.Substring(lastIndex);
+                string segment = message.Substring(lastIndex);
+
                 // Handle close tag tokens
                 segment = closeTagRegex.Replace(segment, "</font>");
+
                 // Remove unknown tokens
                 segment = System.Text.RegularExpressions.Regex.Replace(segment, "\\{[a-zA-Z]+\\}", "");
                 output.Append(segment);
@@ -80,6 +128,7 @@ namespace MenuManagerAPI.CrossCutting
             }
             return output.ToString();
         }
+
         // Define class constants and properties
         public const int MAX_VISIBLE_OPTIONS = 5;
         public const FontSize DefaultHeaderFontSize = FontSize.M;
@@ -185,13 +234,16 @@ namespace MenuManagerAPI.CrossCutting
             return Plugin.Instance!.Config.DefaultMenu;
         }
 
-        public static void SetMenuType(CCSPlayerController player, MenuType type)
+        public static void SetMenuType(CCSPlayerController player, MenuType type, CommandInfo? command = null)
         {
             var name = Enum.GetName(type.GetType(), type);
             if (name != null)
             {
                 settings?.SetPlayerSettingsValue(player, "menutype", name);
-                player.PrintToChat($"{Plugin.Instance?.Localizer["menutype.selected"]} {GetMenuTypeName(type)}");
+                if (command != null)
+                    command.ReplyToCommand($"{Plugin.Instance?.Localizer["menutype.selected"]} {GetMenuTypeName(type)}");
+                else
+                    player.PrintToChat($"{Plugin.Instance?.Localizer["menutype.selected"]} {GetMenuTypeName(type)}");
             }
         }
 

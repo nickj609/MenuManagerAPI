@@ -19,7 +19,6 @@ public class MenuInstance : IMenu
     public Action<CCSPlayerController>? ResetAction;
     public List<ChatMenuOption> MenuOptions { get; }
     public PostSelectAction PostSelectAction { get; set; } = PostSelectAction.Nothing;
-
     public int ItemsPerPage { get; set; } = 7;
     public int CurrentPage { get; set; }
     public Stack<int> PageOffsets { get; set; } = new();
@@ -98,12 +97,14 @@ public class MenuInstance : IMenu
 
     public ChatMenuOption AddMenuOption(string display, Action<CCSPlayerController, ChatMenuOption> onSelect, bool disabled = false)
     {
-        var option = new ChatMenuOption(display, disabled, (p, opt) => onSelect(p, opt));
+        var option = new ChatMenuOption(MenuExtensions.FormatChatMessage(display), disabled, (p, opt) => onSelect(p, opt));
+
         MenuOptions.Add(option);
-        chatMenu?.AddMenuOption(display, onSelect, disabled);
-        centerMenu?.AddMenuOption(display, onSelect, disabled);
-        buttonMenu?.AddMenuOption(display, onSelect, disabled);
-        consoleMenu?.AddMenuOption(display, onSelect, disabled);
+        consoleMenu.AddMenuOption(MenuExtensions.CleanMessage(display), onSelect, disabled);
+        chatMenu.AddMenuOption(MenuExtensions.FormatChatMessage(display), onSelect, disabled);
+        centerMenu?.AddMenuOption(MenuExtensions.FormatHtmlMessage(display), onSelect, disabled);
+        buttonMenu.AddMenuOption(MenuExtensions.FormatHtmlMessage(display, true), onSelect, disabled);
+        
         return option;
     }
 

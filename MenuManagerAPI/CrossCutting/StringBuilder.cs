@@ -47,9 +47,7 @@ public static class StringBuilderPool
     public static void Clear()
     {
         while (Pool.TryTake(out _))
-        {
             Interlocked.Decrement(ref _currentPoolSize);
-        }
     }
 }
 

@@ -10,12 +10,25 @@ namespace MenuManagerAPI
     // Define configuration classes
     public class ButtonsConfig
     {
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons UpButton { get; set; } = PlayerButtons.Forward;
+
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons DownButton { get; set; } = PlayerButtons.Back;
+
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons LeftButton { get; set; } = PlayerButtons.Moveleft;
+
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons RightButton { get; set; } = PlayerButtons.Moveright;
+
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons SelectButton { get; set; } = PlayerButtons.Use;
+
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons ExitButton { get; set; } = PlayerButtons.Reload;
+
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public PlayerButtons BackButton { get; set; } = PlayerButtons.Duck;
     }
 
@@ -31,6 +44,7 @@ namespace MenuManagerAPI
     public class TitleStyling
     {
         public string Color { get; set; } = "red";
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public FontSize FontSize { get; set; } = FontSize.M;
         public bool Bold { get; set; } = false;
         public bool Italic { get; set; } = false;
@@ -39,6 +53,7 @@ namespace MenuManagerAPI
     public class SelectionStyling
     {
         public string Color { get; set; } = "red";
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public FontSize FontSize { get; set; } = FontSize.SM;
         public bool Bold { get; set; } = false;
         public bool Italic { get; set; } = false;
@@ -60,6 +75,7 @@ namespace MenuManagerAPI
 
     public class FooterStyling
     {
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public FontSize FontSize { get; set; } = FontSize.S;
         public SeparatorStyling Separator { get; set; } = new();
         public ButtonKeyStyling Button { get; set; } = new();
@@ -82,11 +98,9 @@ namespace MenuManagerAPI
     // Define main configuration class
     public class Config : IBasePluginConfig
     {
-        // Global Plugin Settings
         public int Version { get; set; } = 2;
+        [System.Text.Json.Serialization.JsonConverter(typeof(System.Text.Json.Serialization.JsonStringEnumConverter))]
         public MenuType DefaultMenu { get; set; } = MenuType.ButtonMenu;
-        
-        // Button Menu Settings
         public ButtonMenuConfig ButtonMenu { get; set; } = new();
     }
 }

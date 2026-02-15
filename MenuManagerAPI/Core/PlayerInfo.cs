@@ -34,14 +34,16 @@ public class PlayerInfo
     {
         if (MainMenu == null)
         {
+            // Register this menu as open for the player
+            ButtonMenuManager.OpenMenu(this);
+
+            // Freeze player
             if (Plugin.Instance != null && !Plugin.Instance.Config.ButtonMenu.MoveWithOpenMenu)
             {
                 if (Plugin.Instance.Config.ButtonMenu.UseVelocityModifier)
                 {
                     if (Plugin.Players.ContainsKey(player.Slot))
-                    {
                         Plugin.Players[player.Slot].VelocityModifier = player.PlayerPawn.Value!.VelocityModifier;
-                    }
                 }
                 else
                 {
@@ -49,51 +51,37 @@ public class PlayerInfo
                 }
             }
 
-
-            ButtonMenuManager.OpenMenu(this);
-
-            // Font sizes are now fixed
-            CurrentItemDisplayFontSize = MenuExtensions.DefaultItemFontSize;
-            CurrentHeaderDisplayFontSize = MenuExtensions.DefaultHeaderFontSize;
-            CurrentFooterDisplayFontSize = MenuExtensions.DefaultFooterFontSize;
-
+            // Set the main menu for this player
             MainMenu = menu;
-            // Ensure VisibleOptions is always MAX_VISIBLE_OPTIONS for the main menu
             VisibleOptions = MenuExtensions.MAX_VISIBLE_OPTIONS; 
             CurrentChoice = MainMenu?.ButtonOptions.First;
-            MenuStart = CurrentChoice;
-            UpdateCenterHtml();
         }
         else // This block handles opening sub-menus
         {
-            // Font sizes are now fixed
-            CurrentItemDisplayFontSize = MenuExtensions.DefaultItemFontSize;
-            CurrentHeaderDisplayFontSize = MenuExtensions.DefaultHeaderFontSize;
-            CurrentFooterDisplayFontSize = MenuExtensions.DefaultFooterFontSize;
-
             menu!.Prev = CurrentChoice;
-            // !! FIX: Ensure sub-menus also respect MAX_VISIBLE_OPTIONS
             VisibleOptions = MenuExtensions.MAX_VISIBLE_OPTIONS; 
             CurrentChoice = menu.ButtonOptions.First;
-            MenuStart = CurrentChoice;
-            UpdateCenterHtml();
         }
+
+        // Display the menu to the player
+        MenuStart = CurrentChoice;
+        UpdateCenterHtml();
     }
 
     public void CloseMenu()
     {
         if (Plugin.Instance != null)
         {
+            // Unregister this menu as open for the player
             ButtonMenuManager.CloseMenu(this);
 
+            // Unfreeze player
             if (!Plugin.Instance.Config.ButtonMenu.MoveWithOpenMenu)
             {
                 if (Plugin.Instance.Config.ButtonMenu.UseVelocityModifier)
                 {
                     if (player.PlayerPawn.Value != null && Plugin.Players.ContainsKey(player.Slot))
-                    {
                         player.PlayerPawn.Value.VelocityModifier = Plugin.Players[player.Slot].VelocityModifier;
-                    }
                 }
                 else
                 {
@@ -102,6 +90,7 @@ public class PlayerInfo
             }
         }
 
+        // Clear menu data
         MenuOpen = false;
         MainMenu = null;
         CurrentChoice = null;
@@ -114,58 +103,56 @@ public class PlayerInfo
             return;
 
         if (Plugin.Instance.Config.ButtonMenu.UseVelocityModifier)
-        {
             player.PlayerPawn.Value!.VelocityModifier = 0.0f;
+
+        if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.UpButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.UpButton) != 0)
+        {
+            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config!.ButtonMenu.ButtonSounds.Scroll);
+            ScrollUp();
         }
+        else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.DownButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.DownButton) != 0)
+        {
+            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Scroll);
+            ScrollDown();
+        }
+        else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.SelectButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.SelectButton) != 0)
+        {
+            Choose();
+        }
+        else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.BackButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.BackButton) != 0)
+        {
+            if (MainMenu?.BackAction != null)
+            {
+                MainMenu.BackAction(player);
+                return;
+            }
 
-            if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.UpButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.UpButton) != 0)
+            if (CurrentChoice?.Value.Parent?.Prev != null)
             {
-                PlayerExtensions.PlaySound(player, Plugin.Instance!.Config!.ButtonMenu.ButtonSounds.Scroll);
-                ScrollUp();
+                PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Back);
+                GoBackToPrev(CurrentChoice?.Value.Parent.Prev);
             }
-            else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.DownButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.DownButton) != 0)
-            {
-                PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Scroll);
-                ScrollDown();
-            }
-            else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.SelectButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.SelectButton) != 0)
-            {
-                Choose();
-            }
-            else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.BackButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.BackButton) != 0)
-            {
-                if (MainMenu?.BackAction != null)
-                {
-                    MainMenu.BackAction(player);
-                    return;
-                }
-
-                if (CurrentChoice?.Value.Parent?.Prev != null)
-                {
-                    PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Back);
-                    GoBackToPrev(CurrentChoice?.Value.Parent.Prev);
-                }
-            }
-            else if (MainMenu != null && MainMenu.ExitButton &&
-                (Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) == 0 &&
-                (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) != 0)
-            {
-                PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Exit);
-                CloseMenu();
-            }
-            else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.LeftButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.LeftButton) != 0)
-            {
-                PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Scroll);
-                JumpToTop();
-            }
-            else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.RightButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.RightButton) != 0)
-            {
-                PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Scroll);
-                JumpToBottom();
-            }
-            Buttons = player.Buttons;
-            if (CenterHtml != "")
-                Server.NextFrame(() => player.PrintToCenterHtml(CenterHtml));
+        }
+        else if (MainMenu != null && MainMenu.ExitButton &&
+            (Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) == 0 &&
+            (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.ExitButton) != 0)
+        {
+            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Exit);
+            CloseMenu();
+        }
+        else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.LeftButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.LeftButton) != 0)
+        {
+            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Scroll);
+            JumpToTop();
+        }
+        else if ((Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.RightButton) == 0 && (player.Buttons & Plugin.Instance.Config.ButtonMenu.ButtonsConfig.RightButton) != 0)
+        {
+            PlayerExtensions.PlaySound(player, Plugin.Instance!.Config.ButtonMenu.ButtonSounds.Scroll);
+            JumpToBottom();
+        }
+        Buttons = player.Buttons;
+        if (CenterHtml != "")
+            Server.NextFrame(() => player.PrintToCenterHtml(CenterHtml));
     }
 
     public void Choose()
@@ -214,9 +201,7 @@ public class PlayerInfo
             {
                 MenuStart = CurrentChoice;
                 for (int i = 0; i < MenuExtensions.MAX_VISIBLE_OPTIONS - 1; i++)
-                {
                     MenuStart = MenuStart?.Previous;
-                }
             }
             else
             {
@@ -304,13 +289,11 @@ public class PlayerInfo
         StringBuilder builder = StringBuilderPool.Get();
         try
         {
-            int linesRenderedContent = 0;
-
             FontSize actualHeaderFontSize = CurrentHeaderDisplayFontSize;
             FontSize actualFooterFontSize = CurrentFooterDisplayFontSize;
             FontSize actualOptionCountFontSize = FontSize.S; 
 
-            // --- Header Section ---
+            // Header section
             bool hasHeader = !string.IsNullOrEmpty(MainMenu?.Title);
             if (hasHeader)
             {
@@ -321,7 +304,7 @@ public class PlayerInfo
                 if (titleStyle.Italic)
                     headerStyleClasses += titleStyle.Bold ? " stratum-bold-italic" : "stratum-italic";
 
-                string normalizedHeader = MainMenu?.Title.NormalizeMenuText(headerFontClass, headerStyleClasses, headerColor) ?? "";
+                string normalizedHeader = MainMenu?.Title.FormatHtmlMessage(true, headerColor, headerFontClass, headerStyleClasses) ?? "";
                 if (Plugin.Instance!.Config.ButtonMenu.OptionCount)
                 {
                     builder.AppendLine($"{normalizedHeader}</u><font class='{MenuExtensions.GetCssClassForFontSize(actualOptionCountFontSize)} stratum-bold-italic'>{CurrentChoice?.Value?.Index + 1}/{CurrentChoice?.List?.Count}</font></font><br>");
@@ -330,10 +313,9 @@ public class PlayerInfo
                 {
                     builder.AppendLine($"{normalizedHeader}<br>");
                 }
-                linesRenderedContent++;
             }
 
-            // --- Menu Items Section ---
+            // Menu items section
             LinkedListNode<ButtonMenuOption>? option = MenuStart!;
             int itemsCountedForDisplay = 0;
             int maxItemsToRenderInLoop = VisibleOptions;
@@ -344,7 +326,7 @@ public class PlayerInfo
                 string fontColor = option?.Value.Disabled == true
                     ? Plugin.Instance!.Config.ButtonMenu.DisabledOptionColor
                     : Plugin.Instance!.Config.ButtonMenu.EnabledOptionColor;
-                string styleClasses = string.Empty; // Add logic for bold/italic if needed
+                string styleClasses = string.Empty;
 
                 if (option == CurrentChoice && Plugin.Instance != null)
                 {
@@ -367,24 +349,23 @@ public class PlayerInfo
                     // Build: arrow | bracket | content | bracket | arrow
                     builder.Append($"{arrowTag}" + (leftParts.Length > 0 ? leftParts[0] : "") + "</font> ");
                     builder.Append($"{arrowTag}" + (leftParts.Length > 1 ? string.Join(" ", leftParts.Skip(1)) : "[") + "</font> ");
-                    string normalizedOptionDisplay = option?.Value?.OptionDisplay.NormalizeMenuText(itemFontClass, styleClasses, fontColor) ?? "";
+                    string normalizedOptionDisplay = option?.Value?.OptionDisplay.FormatHtmlMessage(true, fontColor, itemFontClass, styleClasses) ?? "";
                     builder.Append($"{normalizedOptionDisplay} ");
                     builder.Append($"{arrowTag}" + (rightParts.Length > 0 ? rightParts[0] : "]") + "</font> ");
                     builder.Append($"{arrowTag}" + (rightParts.Length > 1 ? rightParts[rightParts.Length - 1] : "") + "</font>");
                 }
                 else
                 {
-                    string normalizedOptionDisplay = option?.Value.OptionDisplay.NormalizeMenuText(itemFontClass, styleClasses, fontColor) ?? "";
+                    string normalizedOptionDisplay = option?.Value.OptionDisplay.FormatHtmlMessage(true, fontColor, itemFontClass, styleClasses) ?? "";
                     builder.Append(normalizedOptionDisplay);
                 }
 
                 builder.Append("<br>");
                 option = option?.Next;
                 itemsCountedForDisplay++;
-                linesRenderedContent++;
             }
 
-            // --- Footer Section ---
+            // Footer section
             var footerStyle = Plugin.Instance?.Config.ButtonMenu.Footer;
             string footerFontClass = MenuExtensions.GetCssClassForFontSize(footerStyle?.FontSize ?? actualFooterFontSize);
             string separatorColor = footerStyle?.Separator.Color ?? "white";
@@ -392,7 +373,7 @@ public class PlayerInfo
             string buttonColor = footerStyle?.Button.Color ?? "gold";
             string buttonBoldClass = footerStyle?.Button.Bold == true ? " class='stratum-bold'" : string.Empty;
             
-            // Build footer from lang keys: Scroll [W/S] | Sel [E] | Prev [CTRL] | Exit [R]
+            // Build footer from lang keys
             string scroll = Plugin.Instance?.Localizer["menu.footer.scroll"] ?? "Scroll";
             string scrollButton = Plugin.Instance?.Localizer["menu.footer.scroll.button"] ?? "W/S";
             string select = Plugin.Instance?.Localizer["menu.footer.select"] ?? "Sel";
@@ -404,31 +385,28 @@ public class PlayerInfo
             
             builder.Append("<font class='fontSize-xs'>&nbsp;</font><br>");
             builder.Append($"<font class='{footerFontClass}'>");
-            string normalizedScroll = scroll.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
-            string normalizedScrollButton = scrollButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
-            string normalizedSelect = select.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
-            string normalizedSelectButton = selectButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
-            string normalizedPrevious = previous.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
-            string normalizedPreviousButton = previousButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
-            string normalizedExit = exit.NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
-            string normalizedExitButton = exitButton.NormalizeMenuText(footerFontClass, buttonBoldClass.Trim(), buttonColor);
-            string normalizedSeparator = "|".NormalizeMenuText(footerFontClass, separatorBoldClass.Trim(), separatorColor);
-            if (MainMenu != null && MainMenu.ExitButton)
-            {
-                builder.Append($"{normalizedScroll} {normalizedScrollButton} {normalizedSeparator} {normalizedSelect} {normalizedSelectButton} {normalizedSeparator} {normalizedPrevious} {normalizedPreviousButton} {normalizedSeparator} {normalizedExit} {normalizedExitButton}");
-            }
-            else
-            {
-                builder.Append($"{normalizedScroll} {normalizedScrollButton} {normalizedSeparator} {normalizedSelect} {normalizedSelectButton} {normalizedSeparator} {normalizedPrevious} {normalizedPreviousButton}");
-            }
-            builder.Append("</font>");
-            linesRenderedContent += 2;
 
+            string normalizedScroll = scroll.FormatHtmlMessage(true, separatorColor, footerFontClass, separatorBoldClass.Trim());
+            string normalizedScrollButton = scrollButton.FormatHtmlMessage(true, buttonColor, footerFontClass, buttonBoldClass.Trim());
+            string normalizedSelect = select.FormatHtmlMessage(true, separatorColor, footerFontClass, separatorBoldClass.Trim());
+            string normalizedSelectButton = selectButton.FormatHtmlMessage(true, buttonColor, footerFontClass, buttonBoldClass.Trim());
+            string normalizedPrevious = previous.FormatHtmlMessage(true, separatorColor, footerFontClass, separatorBoldClass.Trim());
+            string normalizedPreviousButton = previousButton.FormatHtmlMessage(true, buttonColor, footerFontClass, buttonBoldClass.Trim());
+            string normalizedExit = exit.FormatHtmlMessage(true, separatorColor, footerFontClass, separatorBoldClass.Trim());
+            string normalizedExitButton = exitButton.FormatHtmlMessage(true, buttonColor, footerFontClass, buttonBoldClass.Trim());
+            string normalizedSeparator = "|".FormatHtmlMessage(true, separatorColor, footerFontClass, separatorBoldClass.Trim());
+
+            if (MainMenu != null && MainMenu.ExitButton)
+                builder.Append($"{normalizedScroll} {normalizedScrollButton} {normalizedSeparator} {normalizedSelect} {normalizedSelectButton} {normalizedSeparator} {normalizedPrevious} {normalizedPreviousButton} {normalizedSeparator} {normalizedExit} {normalizedExitButton}");
+            else
+                builder.Append($"{normalizedScroll} {normalizedScrollButton} {normalizedSeparator} {normalizedSelect} {normalizedSelectButton} {normalizedSeparator} {normalizedPrevious} {normalizedPreviousButton}");
+
+            builder.Append("</font>");
             CenterHtml = builder.ToString();
         }
         finally
         {
-            // Always return StringBuilder to pool
+            // Return StringBuilder to pool
             StringBuilderPool.Return(builder);
         }
     }

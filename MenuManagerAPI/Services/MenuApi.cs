@@ -43,24 +43,18 @@ public class MenuAPI : IMenuAPI
         if (Plugin.Players.TryGetValue(player.Slot, out PlayerInfo? playerInfo))
         {
             if (playerInfo.ButtonMenuOpen)
-            {
                 playerInfo.CloseMenu();
-                playerInfo.MenuOpen = false;
-            }
             else
-            {
                 MenuManager.CloseActiveMenu(player);
-                playerInfo.MenuOpen = false;
-            }
+                
+            playerInfo.MenuOpen = false;
         }
     }
 
     public void CloseMenuForAll()
     {
         foreach (var player in PlayerExtensions.ValidPlayers())
-        {
             CloseMenu(player);
-        }
     }
     
     public void SetMenuType(CCSPlayerController player, MenuType menuType)
@@ -73,9 +67,7 @@ public class MenuAPI : IMenuAPI
         if (Plugin.Players.TryGetValue(player.Slot, out PlayerInfo? playerInfo))
         {
             if (playerInfo.ButtonMenuOpen)
-            {
                 playerInfo.RefreshDisplay();
-            }
         }
     }
 }

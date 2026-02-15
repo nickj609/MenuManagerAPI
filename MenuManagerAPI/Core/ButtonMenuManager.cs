@@ -1,6 +1,5 @@
 // Included libraries
 using CounterStrikeSharp.API.Core;
-using Microsoft.Extensions.Logging;
 
 // Define namespace
 namespace MenuManagerAPI.Core
@@ -41,9 +40,7 @@ namespace MenuManagerAPI.Core
         private static void OnTick()
         {
             foreach (var info in OpenMenus.Values)
-            {
                 info.OnTick();
-            }
         }
 
         public static bool HasOpenMenu(int slot) => OpenMenus.ContainsKey(slot);

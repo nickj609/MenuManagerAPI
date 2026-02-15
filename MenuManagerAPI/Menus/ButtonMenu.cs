@@ -31,7 +31,6 @@ public class ButtonMenu : IMenu
 
     public ChatMenuOption AddMenuOption(string display, Action<CCSPlayerController, ChatMenuOption> onSelect, bool disabled = false)
     {
-        // Add menu option
         var option = new ButtonMenuOption(display, disabled, onSelect);
         MenuOptions.Add(new ChatMenuOption(display, disabled, onSelect));
         option.Parent = this;
@@ -45,18 +44,14 @@ public class ButtonMenu : IMenu
         if (Plugin.Players.TryGetValue(player.Slot, out PlayerInfo? playerInfo))
         {
             if (playerInfo != null)
-            {
                 playerInfo.OpenMenu(this);
-            }
         }
     }
 
     public void OpenToAll()
     {
         foreach (var player in PlayerExtensions.ValidPlayers())
-        {
             Open(player);
-        }
     }
     
     public void OnBackAction(CCSPlayerController player)
