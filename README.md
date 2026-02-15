@@ -161,7 +161,7 @@ Below is an example of the actual `en.json` lang file. You can add or override k
 ```
 
 # API
-Add a reference to `MenuManagerAPI.Shared` to your project in one of the following ways:
+Add a reference to `MenuManagerAPI.Shared` in your project in one of the following ways:
 
 1. Download the source code and build it yourself.
 2. Download the latest release from the [releases](https://github.com/nickj609/MenuManagerAPI/releases) page.
