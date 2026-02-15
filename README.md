@@ -1,4 +1,4 @@
-![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/MenuManagerAPI) ![Issues](https://img.shields.io/github/issues/nickj609/MenuManagerAPI) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/MenuManagerAPI/total) ![NuGet Version](https://img.shields.io/nuget/v/MenuManagerAPI.Shared)
+![Copyright Nickj609l](https://img.shields.io/badge/Copyright-Nickj609-red) ![GitHub License](https://img.shields.io/github/license/nickj609/MenuManagerAPI) ![GitHub Release](https://img.shields.io/github/v/release/nickj609/menumanagerapi) ![Issues](https://img.shields.io/github/issues/nickj609/MenuManagerAPI) ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nickj609/MenuManagerAPI/total) ![NuGet Version](https://img.shields.io/nuget/v/MenuManagerAPI.Shared)
 
 # MenuManagerAPI
 
@@ -161,7 +161,7 @@ Below is an example of the actual `en.json` lang file. You can add or override k
 ```
 
 # API
-Add a reference to `MenuManagerAPI.Shared` to your project in one of the following ways:
+Add a reference to `MenuManagerAPI.Shared` in your project using one of the methods below to get started!
 
 1. Download the source code and build it yourself.
 2. Download the latest release from the [releases](https://github.com/nickj609/MenuManagerAPI/releases) page.
@@ -246,10 +246,6 @@ MenuManagerAPI provides robust color handling for menu text, giving developers f
   - If no color token is present, the configured color from your menu style (e.g., `EnabledOptionColor`, `Title.Color`) is used as a fallback.
   - You can use raw HTML `<font color='...'>` tags in your menu text for advanced customization. These will be preserved and rendered as-is.
   - Color tokens will override all colors in the configuration file
-
-**Summary:**
-  - Use `{color}` tokens for simple, portable colorization. This can be from a config file or directly hard-coded. 
-  - Use raw HTML for advanced needs.
 
 # Need Help?
 
