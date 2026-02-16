@@ -18,7 +18,7 @@ This plugin has incorporated code and/or design principles from the following pl
 - [WASDMenuAPI](https://github.com/Interesting-exe/WASDMenuAPI)
 - [MenuManagerCS2](https://github.com/NickFox007/MenuManagerCS2)
 
-This plugin also utilizes [PlayerSettngsCS2](https://github.com/NickFox007/PlayerSettingsCS2) for storing menu types as player settings.
+This plugin also utilizes [PlayerSettngsCS2](https://github.com/NickFox007/PlayerSettingsCS2) and [AnyBaseLib](https://github.com/NickFox007/AnyBaseLibCS2) for storing menu types as player settings.
 
 ## Commands
 
