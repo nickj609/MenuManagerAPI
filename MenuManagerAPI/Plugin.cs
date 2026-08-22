@@ -65,7 +65,7 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
             var openMenus = new List<PlayerInfo>(MenuManagerAPI.Core.ButtonMenuManager.GetOpenMenus());
             foreach (var playerInfo in openMenus)
             {
-                ButtonMenuManager.CloseMenu(playerInfo);
+                playerInfo.CloseMenu();
             }
             
             _dependencyManager.OnMapStart(@event);
@@ -100,7 +100,7 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
             var openMenus = new List<PlayerInfo>(MenuManagerAPI.Core.ButtonMenuManager.GetOpenMenus());
             foreach (var playerInfo in openMenus)
             {
-                ButtonMenuManager.CloseMenu(playerInfo);
+                playerInfo.CloseMenu();
             }
             return HookResult.Continue;
         });
@@ -111,7 +111,7 @@ public class Plugin : BasePlugin, IPluginConfig<Config>
             var openMenus = new List<PlayerInfo>(ButtonMenuManager.GetOpenMenus());
 
             foreach (var infoObj in openMenus)
-                ButtonMenuManager.CloseMenu(infoObj);
+                infoObj.CloseMenu();
 
             Players.Clear();
 
